@@ -92,10 +92,12 @@ services:
         import time
         print("allocating memory...", flush=True)
         buf = []
-        for i in range(200):
+        for i in range(40):
             buf.append(bytearray(10 * 1024 * 1024))
             print("allocated", (i + 1) * 10, "MB", flush=True)
             time.sleep(0.2)
+        print("done, holding", len(buf) * 10, "MB", flush=True)
+        time.sleep(3600)
     mem_limit: 128m
     restart: always
     networks:
