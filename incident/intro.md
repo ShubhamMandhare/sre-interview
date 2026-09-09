@@ -1,51 +1,29 @@
-# Users report the application is down
+# Incident: the application is down
 
-You have full root access to a Docker host running a small stack:
+You have full root access to a Docker host running a small stack: a web proxy
+in front of an API backed by Redis, a monitoring stack (Prometheus + Grafana),
+and some background workers.
 
-- **nginx** (reverse proxy, published on port **8080**) → **API** (Flask) → **Redis**
-- A monitoring stack: **Prometheus** (9090) + **Grafana** (3000)
-- A few background workers
+Something is wrong — **users report the application is down.** Investigate,
+explain what you find, and fix what you can. Treat it like a real incident:
+state a hypothesis before you act, and separate symptoms from root cause.
 
-**Several things are broken.** Your job is to investigate, explain what you
-find, and fix what you can. Treat it like a real incident: state a hypothesis
-before you run a command, and separate *symptoms* from *root cause*.
+## Wait for the environment to arm itself
 
----
-
-## ⏳ First: wait for the environment to arm itself
-
-The stack is being built and started in the background (it pulls images and
-builds the API — roughly **1–2 minutes** on first boot). Check progress:
+The stack builds and starts in the background (~1–2 min on first boot):
 
 ```bash
-tail -n 20 /root/setup.log
+tail -n 5 /root/setup.log
 ```{{exec}}
 
-When you see `>> [setup] READY`, you're good to go. Then:
+When you see `>> [setup] READY`, you can begin.
 
-```bash
-cd /root/sre-interview
-docker compose ps
-```{{exec}}
+## Endpoints
 
-A couple of containers showing **Restarting** is expected — that's part of the
-incident.
+Use the port tabs (or the "Traffic / Ports" menu) to open **8080** (app),
+**9090** (Prometheus), and **3000** (Grafana) in your browser.
 
-## Handy starting points
+## Environment
 
-```bash
-docker compose ps
-docker compose logs <service>
-docker stats --no-stream
-docker inspect <container>
-docker compose exec <service> sh
-```{{exec}}
-
-## Viewing the web endpoints
-
-Use the **port tabs** at the top of the terminal (or the "Traffic / Ports"
-menu) to open **8080** (app), **9090** (Prometheus), and **3000** (Grafana)
-in your browser.
-
-Work through the steps on the left. Each has a **Check** button that verifies
-your fix.
+Standard Docker tooling is available (`docker`, `docker compose`). Work through
+the tasks on the left — each has a **Check** button that verifies your fix.

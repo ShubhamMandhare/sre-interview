@@ -1,10 +1,10 @@
-# Step 6 — Monitoring: high latency, but CPU/memory look fine
+# Task 6 — Performance
 
-Now that the app is up, use the metrics to reason about a performance problem.
-The API exposes Prometheus metrics at `api:5000/metrics`; Prometheus scrapes
-every 5s.
+With the app healthy, users report it sometimes feels slow — even though CPU and
+memory look fine. The API exposes Prometheus metrics; **Prometheus** (9090) and
+**Grafana** (3000) are available.
 
-Generate some slow traffic (the `/slow` endpoint sleeps 8s):
+Generate some traffic to work with:
 
 ```bash
 docker compose exec api python -c "
@@ -16,33 +16,10 @@ ts=[threading.Thread(target=hit,args=('/slow',)) for _ in range(3)]
 [t.start() for t in ts]
 for _ in range(15): hit('/')
 [t.join() for t in ts]
-print('traffic done')
 "
 ```{{exec}}
 
-Open **Prometheus** (port **9090**) and try:
+Using the metrics, explain what's happening and where the problem is. Be ready
+to discuss how you'd quantify it and what alerting you'd put in place.
 
-```promql
-sum(rate(app_requests_total[1m]))
-```
-
-```promql
-histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket[5m])) by (le))
-```
-
-Then break p95 down **by endpoint** to find the culprit:
-
-```promql
-histogram_quantile(0.95, sum(rate(app_request_latency_seconds_bucket[5m])) by (le, endpoint))
-```
-
-## Talk through it
-
-- Which of the **golden signals** (latency, traffic, errors, saturation) is
-  actually degraded here?
-- Overall p95 looks alarming — but is the *system* saturated, or is one
-  endpoint dragging the aggregate up?
-- What alert would you add so this is caught automatically next time?
-
-There's no automatic check on this step — it's a discussion. Press **Next**
-when you're done.
+(No automatic check on this task — it's a discussion.)

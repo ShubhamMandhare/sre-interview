@@ -1,30 +1,11 @@
-# Step 3 — The `worker` can't reach Redis
+# Task 3
 
-**Symptom:** `worker` logs a connection failure to Redis every 5 seconds.
-
-```bash
-docker compose logs worker | tail -5
-```{{exec}}
-
-## Your task
-
-Redis is up and other services use it fine — so why can't `worker`? Investigate
-how the containers are wired together and fix the connectivity **without**
-publishing Redis to the host.
-
-Useful moves:
+A background worker is logging errors and failing to do its job.
 
 ```bash
-docker inspect worker --format '{{json .NetworkSettings.Networks}}'
-docker inspect redis  --format '{{json .NetworkSettings.Networks}}'
-docker compose exec worker sh -c "getent hosts redis || echo 'name does not resolve'"
+docker compose ps
 ```{{exec}}
 
-Edit `/root/sre-interview/docker-compose.yml`, then:
+Find out what's wrong and fix it.
 
-```bash
-docker compose up -d worker
-docker compose exec worker redis-cli -h redis ping
-```{{exec}}
-
-Press **Check** when `worker` can reach Redis (`PONG`).
+Press **Check** when the worker is functioning correctly.

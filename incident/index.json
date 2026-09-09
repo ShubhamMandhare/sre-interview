@@ -1,6 +1,6 @@
 {
   "title": "SRE / DevOps Incident: The App Is Down",
-  "description": "A small containerised app (nginx -> API -> Redis) plus Prometheus + Grafana and some background workers. Several faults are baked in. Investigate and fix as many as you can.",
+  "description": "A small containerised app (nginx -> API -> Redis) plus Prometheus + Grafana and some background workers. Something is wrong. Investigate and fix what you can.",
   "difficulty": "medium",
   "time": "45 minutes",
   "details": {
@@ -9,12 +9,12 @@
       "background": "background.sh"
     },
     "steps": [
-      { "title": "Restore the app (502)", "text": "step1.md", "verify": "verify1.sh" },
-      { "title": "A container won't stay up", "text": "step2.md", "verify": "verify2.sh" },
-      { "title": "A worker can't reach Redis", "text": "step3.md", "verify": "verify3.sh" },
-      { "title": "A container keeps getting killed", "text": "step4.md", "verify": "verify4.sh" },
-      { "title": "Reclaim the disk", "text": "step5.md", "verify": "verify5.sh" },
-      { "title": "Monitoring: find the latency", "text": "step6.md" }
+      { "title": "Task 1", "text": "step1.md", "verify": "verify1.sh" },
+      { "title": "Task 2", "text": "step2.md", "verify": "verify2.sh" },
+      { "title": "Task 3", "text": "step3.md", "verify": "verify3.sh" },
+      { "title": "Task 4", "text": "step4.md", "verify": "verify4.sh" },
+      { "title": "Task 5", "text": "step5.md", "verify": "verify5.sh" },
+      { "title": "Task 6: Performance", "text": "step6.md" }
     ],
     "finish": {
       "text": "finish.md"
