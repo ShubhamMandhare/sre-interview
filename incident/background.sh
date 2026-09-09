@@ -286,6 +286,25 @@ DS
 echo ">> [setup] waiting for docker daemon..."
 for i in $(seq 1 30); do docker info >/dev/null 2>&1 && break; sleep 2; done
 
+# If only the legacy docker-compose (v1) binary exists, install a Docker CLI
+# plugin shim so `docker compose ...` (v2 syntax) also works -- that's the form
+# the step instructions use.
+if ! docker compose version >/dev/null 2>&1 && command -v docker-compose >/dev/null 2>&1; then
+  echo ">> [setup] installing 'docker compose' -> docker-compose shim"
+  mkdir -p /root/.docker/cli-plugins
+  cat > /root/.docker/cli-plugins/docker-compose <<'SHIM'
+#!/bin/sh
+# Docker CLI plugin shim: forward `docker compose ...` to legacy docker-compose v1.
+if [ "$1" = "docker-cli-plugin-metadata" ]; then
+  printf '{"SchemaVersion":"0.1.0","Vendor":"shim","Version":"v1","ShortDescription":"docker-compose v1 shim"}\n'
+  exit 0
+fi
+[ "$1" = "compose" ] && shift
+exec docker-compose "$@"
+SHIM
+  chmod +x /root/.docker/cli-plugins/docker-compose
+fi
+
 COMPOSE="docker compose"
 if ! docker compose version >/dev/null 2>&1; then
   if command -v docker-compose >/dev/null 2>&1; then COMPOSE="docker-compose"; fi
