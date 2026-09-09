@@ -286,30 +286,29 @@ DS
 echo ">> [setup] waiting for docker daemon..."
 for i in $(seq 1 30); do docker info >/dev/null 2>&1 && break; sleep 2; done
 
-# If only the legacy docker-compose (v1) binary exists, install a Docker CLI
-# plugin shim so `docker compose ...` (v2 syntax) also works -- that's the form
-# the step instructions use.
-if ! docker compose version >/dev/null 2>&1 && command -v docker-compose >/dev/null 2>&1; then
-  echo ">> [setup] installing 'docker compose' -> docker-compose shim"
+# Killercoda ships the legacy docker-compose v1 (1.29.2), which is broken against
+# a modern Docker Engine (KeyError: 'ContainerConfig' whenever it recreates a
+# container). Install the real Docker Compose v2 plugin so `docker compose ...`
+# works reliably for build/up/recreate.
+if ! docker compose version >/dev/null 2>&1; then
+  echo ">> [setup] installing Docker Compose v2 plugin..."
   mkdir -p /root/.docker/cli-plugins
-  cat > /root/.docker/cli-plugins/docker-compose <<'SHIM'
-#!/bin/sh
-# Docker CLI plugin shim: forward `docker compose ...` to legacy docker-compose v1.
-if [ "$1" = "docker-cli-plugin-metadata" ]; then
-  printf '{"SchemaVersion":"0.1.0","Vendor":"shim","Version":"v1","ShortDescription":"docker-compose v1 shim"}\n'
-  exit 0
-fi
-[ "$1" = "compose" ] && shift
-exec docker-compose "$@"
-SHIM
-  chmod +x /root/.docker/cli-plugins/docker-compose
+  case "$(uname -m)" in
+    aarch64|arm64) CARCH=aarch64 ;;
+    *)             CARCH=x86_64 ;;
+  esac
+  curl -fsSL "https://github.com/docker/compose/releases/download/v2.29.7/docker-compose-linux-${CARCH}" \
+    -o /root/.docker/cli-plugins/docker-compose && chmod +x /root/.docker/cli-plugins/docker-compose
 fi
 
 COMPOSE="docker compose"
 if ! docker compose version >/dev/null 2>&1; then
-  if command -v docker-compose >/dev/null 2>&1; then COMPOSE="docker-compose"; fi
+  if command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE="docker-compose"
+    echo ">> [setup] WARNING: using legacy docker-compose v1 (recreate may fail)"
+  fi
 fi
-echo ">> [setup] using: $COMPOSE"
+echo ">> [setup] using: $COMPOSE ($($COMPOSE version 2>/dev/null | head -1))"
 
 # ---- arm the stack --------------------------------------------------------
 cd "$APP"
