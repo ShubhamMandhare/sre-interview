@@ -13,7 +13,7 @@ mkdir -p "$APP/nginx" "$APP/backend" "$APP/monitoring/grafana" "$APP/data/logs"
 
 # ---- docker-compose.yml ----------------------------------------------------
 cat > "$APP/docker-compose.yml" <<'YAML'
-name: sre-interview
+version: "2.4"
 
 services:
 
